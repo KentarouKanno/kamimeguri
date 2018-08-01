@@ -21,7 +21,7 @@ class WritingViewController: UIViewController, UITextViewDelegate
     //let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
     
-    var nowpostDate : String = ""
+    var nowpostDate = UILabel()
 
     @IBOutlet weak var TempleName: UILabel!
     
@@ -154,36 +154,50 @@ class WritingViewController: UIViewController, UITextViewDelegate
     @IBAction func postBtn(_ sender: UIButton) {
         // キーボードを閉じる
         DiaryText.endEditing(true)
-        
-        
-        print(Realm.Configuration.defaultConfiguration.fileURL!)
-        //ファイルパスを表示させる。
+      
         let newDiary = Diary()
-        newDiary.DiaryText = DiaryText.text!
 
-        
-        let postDateFormatter =  DateFormatter()
-        postDateFormatter.setTemplate(.fullDate)
+        // 内容を反映する
+        newDiary.DiaryText = DiaryText.text
+      
+       
         newDiary.postTempleName = TempleName.text!
         newDiary.postTempleAddress = TempleAddress.text!
-       // diary.dateInfo = postDateFormatter.date(from: nowpostDate)
-        self.saveItems(diary: newDiary)
+         //newDiary.date = nowpostDate.text!
+        let postDateFormatter =  DateFormatter()
+        postDateFormatter.setTemplate(.fullDate)
+        let postDate: String = "\(postDateFormatter.string(from: Date()))"
+        nowpostDate.text = postDate
+        newDiary.date = nowpostDate.text!
+        newDiary.dateInfo = postDateFormatter.date(from: nowpostDate.text!)! as NSDate
         
-        //        diary.scencePhoto = self.ScenceImg.image
-        //        diary.kujiPhoto = self.SyuinImage.image
-        //        diary.syuinPhoto = self.KujiImage.image
+        
+        
+//                newDiary.scencePhoto = self.ScenceImg.image
+//                newDiary.kujiPhoto = self.SyuinImage.image
+//                newDiary.syuinPhoto = self.KujiImage.image
         //             let realm = try! realm.write {
         //             diary.realm?.add(diary, update: true)}
-        //
-        
+        self.saveItems(diary: newDiary)
+        print(Realm.Configuration.defaultConfiguration.fileURL!)
         self.dismiss(animated: true, completion: nil)
-        LogViewController().PostList.reloadData()
+        //LogViewController().PostList.reloadData()
     }
     
     
     func saveItems(diary: Diary){
+        
         do{
             try realm.write{
+                var latestId = 0
+                if (false == realm.isEmpty) {
+                    latestId = (realm.objects(Diary.self).max(ofProperty: "id") as Int?)!//.max(ofProperty: "id")がわかりません
+                    latestId += 1
+                    diary.id = latestId
+                }
+//                if (nil != imageData) {
+//                    diary.imageName = imageManager.saveImage(data: imageData!, id: diary.id)
+//                } 画像問題。
                 realm.add(diary, update: true)
             }
         }

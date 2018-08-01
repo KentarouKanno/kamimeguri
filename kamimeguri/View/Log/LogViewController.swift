@@ -35,25 +35,26 @@ class LogViewController:  UIViewController {
             
 //            let postDateFormatter =  DateFormatter()
 //            postDateFormatter.setTemplate(.fullDate)
-//            let logDataDateInfo = postDateFormatter.date(from: WritingViewController().postDate)
+//           logDataDateInfo = postDateFormatter.date(from: WritingViewController().postDate)
             
             let yearInfo = DateFormatter()
             yearInfo.setTemplate(.Year)
-            logData.postYear = yearInfo.string(from: diary.dateInfo)
+            logData.postYear = yearInfo.string(from: diary.dateInfo as Date)
             //formatter.stringFromDate(time)
             
             let MDINfo = DateFormatter()
             MDINfo.setTemplate(.MDDate)
-            logData.postDate = MDINfo.string(from: diary.dateInfo)
+            logData.postDate = MDINfo.string(from: diary.dateInfo as Date)
             
             let weekdayInfo = DateFormatter()
             weekdayInfo.setTemplate(.weekDay)
-            logData.postWeekly = weekdayInfo.string(from:diary.dateInfo)
+            logData.postWeekly = weekdayInfo.string(from:diary.dateInfo as Date)
             
             logData.postTempleName = diary.postTempleName
             logData.postTempleAddress = diary.postTempleName
             
-            logData.postedText = diary.DiaryText!
+            if diary.DiaryText != nil {
+                logData.postedText = diary.DiaryText!}
             dataArray.insert(logData, at:0)
             
             try! realm.write {
@@ -62,6 +63,12 @@ class LogViewController:  UIViewController {
             }
         }
        
+    }
+
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.PostList.reloadData() // データの再読み込み,ここでエラー出るかも
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -75,7 +82,8 @@ class LogViewController:  UIViewController {
 extension LogViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return diaryArray?.count ?? 1 //if nil return 1 : nil Coalescing Operator! important to make the app safer coz it wont crash eventhough nil
+        let diaryObjects = realm.objects(Diary.self)
+        return diaryObjects.count //if nil return 1 : nil Coalescing Operator! important to make the app safer coz it wont crash eventhough nil
     }
     
     //cell表示
