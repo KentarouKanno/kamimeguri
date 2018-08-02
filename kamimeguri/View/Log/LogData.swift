@@ -11,12 +11,11 @@ import UIKit
 import RealmSwift
 
 class LogData {
-    let realm = try! Realm()
     
     var id: Int?
-    var photo1: UIImage?
-    var photo2: UIImage?
-    var photo3: UIImage?
+    var scencePhoto: UIImage?
+    var syuinPhoto: UIImage?
+    var kujiPhoto: UIImage?
     
     var postYear: String = ""
     var postDate: String = ""
@@ -27,11 +26,34 @@ class LogData {
     var postTempleAddress: String = ""
     
     var images: [UIImage?] {
-        return [photo1, photo2, photo3]
+        return [scencePhoto, syuinPhoto, kujiPhoto]
     }
     
     var dateString: String {
         return postYear + postDate
+    }
+    
+    init(diary: Diary) {
+        id = diary.id
+        if let scencePhoto = diary.scencePhoto {
+            self.scencePhoto = UIImage(data: scencePhoto)
+        }
+        if let syuinPhoto = diary.syuinPhoto {
+            self.syuinPhoto = UIImage(data: syuinPhoto)
+        }
+        if let kujiPhoto = diary.kujiPhoto {
+            self.kujiPhoto = UIImage(data: kujiPhoto)
+        }
+        
+        postTempleName = diary.postTempleName
+        postTempleAddress = diary.postTempleAddress
+        if let text = diary.DiaryText {
+            postedText = text
+        }
+        
+        // postYear = diary.
+        // postDate
+        // kujiPhoto
     }
     
 }

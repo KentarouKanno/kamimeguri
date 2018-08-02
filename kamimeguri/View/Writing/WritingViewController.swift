@@ -46,14 +46,9 @@ class WritingViewController: UIViewController, UITextViewDelegate
     @IBOutlet weak var KujiImage: UIImageView!
     @IBOutlet weak var DiaryText: UITextView!
     
-    @IBAction func ScenceBtnTapped(_ sender: UIButton) {
-        CameraHandler.shared.showActionSheet(vc: self)
-        CameraHandler.shared.imagePickedBlock = { (image) in
-            self.ScenceImg.image = image
-            self.ScenceBtn.isHidden = true
-            
-        }
-    }
+    private var scenceImage: UIImage?
+    private var syuinImage: UIImage?
+    private var kujiImage: UIImage?
     
     //以下textFieldのfunc
     // 編集中のテキストフィールド
@@ -127,9 +122,18 @@ class WritingViewController: UIViewController, UITextViewDelegate
         DiaryText.resignFirstResponder()
     }
     
+    // 境内画像ボタン
+    @IBAction func ScenceBtnTapped(_ sender: UIButton) {
+        CameraHandler.shared.showActionSheet(vc: self)
+        CameraHandler.shared.imagePickedBlock = { (image) in
+            self.ScenceImg.image = image
+            self.ScenceBtn.isHidden = true
+            self.scenceImage = image
+            
+        }
+    }
     
-    //撮影ボタン
-    
+    // 朱印画像ボタン
     @IBAction func SyuinBtnTapped(_ sender: UIButton) {
         CameraHandler.shared.showActionSheet(vc: self)
         CameraHandler.shared.imagePickedBlock = { (image) in
@@ -137,15 +141,17 @@ class WritingViewController: UIViewController, UITextViewDelegate
             //image.centerY =  self.SyuinImage.frame.centerY
             self.SyuinImage.image = image
             self.SyuinBtn.isHidden = true
+            self.syuinImage = image
         }
     }
     
-    
+    // くじ画像ボタン
     @IBAction func MikujiBtnTapped(_ sender: UIButton) {
         CameraHandler.shared.showActionSheet(vc: self)
         CameraHandler.shared.imagePickedBlock = { (image) in //これどうなるの
             self.KujiImage.image = image
             self.KujiBtn.isHidden = true
+            self.kujiImage = image
         }
     }
     
@@ -169,13 +175,21 @@ class WritingViewController: UIViewController, UITextViewDelegate
         let postDate: String = "\(postDateFormatter.string(from: Date()))"
         nowpostDate.text = postDate
         newDiary.date = nowpostDate.text!
-        newDiary.dateInfo = postDateFormatter.date(from: nowpostDate.text!)! as NSDate
+        newDiary.dateInfo = postDateFormatter.date(from: nowpostDate.text!)!
         
+        // 境内画像取得
+        if let scenceImage = scenceImage {
+            newDiary.scencePhoto = UIImagePNGRepresentation(scenceImage)
+        }
         
+        if let syuinImage = syuinImage {
+            newDiary.syuinPhoto = UIImagePNGRepresentation(syuinImage)
+        }
         
-//                newDiary.scencePhoto = self.ScenceImg.image
-//                newDiary.kujiPhoto = self.SyuinImage.image
-//                newDiary.syuinPhoto = self.KujiImage.image
+        if let kujiImage = kujiImage {
+            newDiary.kujiPhoto = UIImagePNGRepresentation(kujiImage)
+        }
+        
         //             let realm = try! realm.write {
         //             diary.realm?.add(diary, update: true)}
         self.saveItems(diary: newDiary)
